@@ -1,319 +1,147 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>极简黑·全能地图</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui, sans-serif;}
-html,body{height:100%;overflow:hidden;background:#000;color:#eaeaea;}
-
-.nav{
-  display:flex;align-items:center;gap:6px;padding:6px 10px;
-  background:#101010;border-bottom:1px solid #222;flex-wrap:wrap;
-}
-.logo{font-weight:600;color:#fff;font-size:14px;}
-.tabs{display:flex;gap:4px;flex:1;min-width:200px;}
-.tab{padding:4px 8px;border-radius:6px;border:none;background:#1a1a1a;color:#ccc;font-size:12px;cursor:pointer;}
-.tab.active{background:#0077ff;color:#fff;}
-.btns{display:flex;gap:4px;}
-.btn{padding:4px 8px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#ccc;font-size:12px;cursor:pointer;}
-
-.wrap{display:flex;height:calc(100% - 42px);}
-.panel{
-  width:280px;background:#101010;border-right:1px solid #222;
-  padding:8px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;
-}
-.card{background:#141414;border:1px solid #222;border-radius:8px;padding:8px;}
-.card h4{font-size:12px;margin-bottom:6px;color:#aaa;}
-input,select{
-  width:100%;padding:6px 8px;border-radius:6px;border:1px solid #333;
-  background:#1a1a1a;color:#eee;outline:none;font-size:12px;margin-bottom:4px;
-}
-.action{width:100%;padding:6px;border-radius:6px;background:#0077ff;color:#fff;border:none;font-size:12px;cursor:pointer;}
-.route-mode{display:flex;gap:4px;margin-bottom:6px;}
-.route-mode button{
-  flex:1;padding:4px;border-radius:6px;border:1px solid #333;
-  background:#1a1a1a;color:#ccc;font-size:12px;cursor:pointer;
-}
-.route-mode button.active{background:#0077ff;color:#fff;border-color:#0077ff;}
-
-.map-box{flex:1;position:relative;}
-#map{width:100%;height:100%;border:none;}
-.full-btn{
-  position:absolute;top:8px;right:8px;width:32px;height:32px;
-  border-radius:50%;background:#1a1a1a;border:1px solid #333;
-  color:#eee;font-size:16px;cursor:pointer;z-index:10;
-}
-
-.coord-info{
-  position:absolute;bottom:10px;left:10px;background:#111;
-  border:1px solid #333;border-radius:6px;padding:6px 10px;
-  font-size:12px;color:#ccc;display:flex;align-items:center;gap:8px;z-index:10;
-}
-#copyCoord{
-  padding:2px 6px;background:#1a1a1a;border:1px solid #333;border-radius:4px;color:#ccc;cursor:pointer;font-size:11px;
-}
-
-.layer-group{display:flex;gap:4px;margin-bottom:6px;}
-.layer-btn{flex:1;padding:4px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#ccc;font-size:12px;cursor:pointer;}
-.layer-btn.active{background:#0077ff;color:#fff;}
-
-.list{max-height:100px;overflow-y:auto;font-size:12px;color:#ccc;}
-.list .item{padding:4px 6px;border-radius:4px;cursor:pointer;}
-.list .item:hover{background:#222;}
-
-.clr-bar{display:flex;gap:6px;margin-top:6px;}
-.clr-btn{flex:1;padding:4px;border-radius:6px;background:#1a1a1a;color:#aaa;border:1px solid #333;font-size:12px;cursor:pointer;}
-
-@media(max-width:768px){.panel{width:100%;height:260px;}.wrap{flex-direction:column;}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短网址生成</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        .input-box {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input:focus {
+            border-color: #409eff;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #409eff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #338eef;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .result-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .short-url {
+            font-size: 16px;
+            color: #409eff;
+            word-break: break-all;
+            cursor: pointer;
+        }
+        .tip {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
-<div class="nav">
-  <div class="logo">极简黑·地图</div>
-  <div class="tabs">
-    <button class="tab active" data="baidu">百度</button>
-    <button class="tab" data="amap">高德</button>
-    <button class="tab" data="qq">腾讯</button>
-    <button class="tab" data="google">谷歌</button>
-  </div>
-  <div class="btns">
-    <button class="btn" id="fullBtn">⛶</button>
-    <button class="btn" id="resetBtn">重置</button>
-  </div>
-</div>
+    <div class="container">
+        <h1>短网址生成</h1>
+        <div class="input-box">
+            <input type="url" id="longUrl" placeholder="请输入需要缩短的网址">
+        </div>
+        <button id="createBtn">生成短网址</button>
 
-<div class="wrap">
-  <div class="panel">
-    <div class="card">
-      <h4>🔍 搜索</h4>
-      <input type="text" id="kw" placeholder="地点">
-      <button class="action" id="search">搜索</button>
+        <div class="result-box" id="resultBox">
+            <div class="result-title">短网址（点击复制）：</div>
+            <div class="short-url" id="shortUrl"></div>
+        </div>
+
+        <div class="tip">本地演示版，仅前端模拟生成</div>
     </div>
 
-    <div class="card">
-      <h4>📍 定位</h4>
-      <button class="action" id="loc">重新定位</button>
-    </div>
+    <script>
+        const createBtn = document.getElementById('createBtn');
+        const longUrl = document.getElementById('longUrl');
+        const resultBox = document.getElementById('resultBox');
+        const shortUrl = document.getElementById('shortUrl');
 
-    <div class="card">
-      <h4>🛣️ 路线</h4>
-      <input type="text" id="from" placeholder="起点">
-      <input type="text" id="to" placeholder="终点">
-      <div class="route-mode">
-        <button class="active" data="drive">驾车</button>
-        <button data="transit">公交</button>
-        <button data="walk">步行</button>
-      </div>
-      <button class="action" id="route">去路线</button>
-    </div>
+        // 模拟短网址生成
+        function makeShortUrl() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let str = '';
+            for (let i = 0; i < 6; i++) {
+                str += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return 'https://t.cn/' + str;
+        }
 
-    <div class="card">
-      <h4>🗺️ 图层</h4>
-      <div class="layer-group">
-        <button class="layer-btn active" data="vec">矢量</button>
-        <button class="layer-btn" data="img">影像</button>
-        <button class="layer-btn" data="ter">地形</button>
-      </div>
-    </div>
+        createBtn.addEventListener('click', () => {
+            const url = longUrl.value.trim();
+            if (!url) {
+                alert('请输入网址');
+                return;
+            }
+            const res = makeShortUrl();
+            shortUrl.textContent = res;
+            resultBox.classList.add('show');
+        });
 
-    <div class="card">
-      <h4>🕐 历史</h4>
-      <div class="list" id="history"></div>
-      <div class="clr-bar">
-        <button class="clr-btn" id="clearHistory">清空历史</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h4>⭐ 收藏</h4>
-      <button class="action" id="addFav">收藏当前位置</button>
-      <div class="list" id="fav"></div>
-      <div class="clr-bar">
-        <button class="clr-btn" id="clearFav">清空收藏</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="map-box">
-    <iframe id="map" src="https://map.baidu.com"></iframe>
-    <div class="coord-info">
-      <span id="coord">坐标：正在自动定位…</span>
-      <button id="copyCoord">复制</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const map = document.getElementById('map');
-const coord = document.getElementById('coord');
-const copyCoord = document.getElementById('copyCoord');
-const tabs = document.querySelectorAll('.tab');
-const layerBtns = document.querySelectorAll('.layer-btn');
-const routeBtns = document.querySelectorAll('.route-mode button');
-
-let now = 'baidu';
-let layer = 'vec';
-let routeType = 'drive';
-let currentLat = 0, currentLng = 0;
-
-const url = {
-  baidu: 'https://map.baidu.com',
-  amap: 'https://amap.com',
-  qq: 'https://map.qq.com',
-  google: 'https://maps.google.com'
-};
-
-// 切换地图
-tabs.forEach(t => {
-  t.onclick = () => {
-    tabs.forEach(x => x.classList.remove('active'));
-    t.classList.add('active');
-    now = t.dataset;
-    map.src = url[now];
-    addHistory(map.src);
-  };
-});
-
-// 全屏
-document.getElementById('fullBtn').onclick = () => {
-  document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
-};
-
-// 搜索
-document.getElementById('search').onclick = () => {
-  const k = document.getElementById('kw').value.trim();
-  if (!k) return;
-  const u = {
-    baidu: `https://map.baidu.com/?q=${encodeURIComponent(k)}`,
-    amap: `https://ditu.amap.com/search?query=${encodeURIComponent(k)}`,
-    qq: `https://map.qq.com/?search=${encodeURIComponent(k)}`,
-    google: `https://www.google.com/maps/search/${encodeURIComponent(k)}`
-  };
-  map.src = u[now];
-  addHistory(map.src);
-};
-
-// 定位函数
-function doLocation() {
-  if (!navigator.geolocation) {
-    coord.innerText = "坐标：不支持定位";
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(p => {
-    currentLat = p.coords.latitude;
-    currentLng = p.coords.longitude;
-    coord.innerText = `WGS84  lat：${currentLat.toFixed(6)}  lng：${currentLng.toFixed(6)}`;
-    const u = {
-      baidu: `https://map.baidu.com/#lat=${currentLat}&lng=${currentLng}&zoom=17`,
-      amap: `https://amap.com/?lat=${currentLat}&lng=${currentLng}&zoom=17`,
-      qq: `https://map.qq.com/?lat=${currentLat}&lng=${currentLng}&zoom=17`,
-      google: `https://maps.google.com/?q=${currentLat},${currentLng}&z=17`
-    };
-    map.src = u[now];
-    addHistory(map.src);
-  }, () => coord.innerText = "坐标：定位失败");
-}
-
-// 手动定位
-document.getElementById('loc').onclick = doLocation;
-
-// 复制坐标
-copyCoord.onclick = () => {
-  const text = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-  navigator.clipboard.writeText(text).then(() => {
-    copyCoord.innerText = "已复制";
-    setTimeout(() => copyCoord.innerText = "复制", 800);
-  });
-};
-
-// 路线
-routeBtns.forEach(b => {
-  b.onclick = () => {
-    routeBtns.forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    routeType = b.dataset;
-  };
-});
-document.getElementById('route').onclick = () => {
-  const f = document.getElementById('from').value, t = document.getElementById('to').value;
-  if (!f || !t) return;
-  const ty = { drive: 'driving', transit: 'transit', walk: 'walking' };
-  const u = {
-    baidu: `https://map.baidu.com/?sn=${f}&en=${t}&mode=${ty[routeType]}`,
-    amap: `https://ditu.amap.com/direction?from=${f}&to=${t}&type=${ty[routeType]}`,
-    qq: `https://map.qq.com/route?type=${routeType}&from=${f}&to=${t}`,
-    google: `https://www.google.com/maps/dir/${f}/${t}/${ty[routeType]}`
-  };
-  map.src = u[now];
-  addHistory(map.src);
-};
-
-// 图层
-layerBtns.forEach(b => {
-  b.onclick = () => {
-    layerBtns.forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    layer = b.dataset;
-    if (now === 'baidu') map.src = `https://map.baidu.com/#layer=${layer === 'img' ? 'traffic' : 'normal'}`;
-    if (now === 'amap') map.src = `https://amap.com/?layer=${layer === 'img' ? 1 : 0}`;
-  };
-});
-
-// 历史
-function addHistory(uri) {
-  let h = JSON.parse(localStorage.his || '[]');
-  h = h.filter(i => i !== uri);
-  h.unshift(uri);
-  if (h.length > 12) h = h.slice(0, 12);
-  localStorage.his = JSON.stringify(h);
-  renderHistory();
-}
-function renderHistory() {
-  const h = JSON.parse(localStorage.his || '[]');
-  document.getElementById('history').innerHTML = h.map(i =>
-    `<div class="item" onclick="map.src='${i}'">${i.slice(8, 30)}...</div>`
-  ).join('');
-}
-document.getElementById('clearHistory').onclick = () => {
-  localStorage.his = '[]';
-  renderHistory();
-};
-
-// 收藏
-document.getElementById('addFav').onclick = () => {
-  let f = JSON.parse(localStorage.fav || '[]');
-  const cur = map.src;
-  if (!f.includes(cur)) {
-    f.unshift(cur);
-    localStorage.fav = JSON.stringify(f);
-    renderFav();
-  }
-};
-function renderFav() {
-  const f = JSON.parse(localStorage.fav || '[]');
-  document.getElementById('fav').innerHTML = f.map(i =>
-    `<div class="item" onclick="map.src='${i}'">⭐ ${i.slice(8, 30)}...</div>`
-  ).join('');
-}
-document.getElementById('clearFav').onclick = () => {
-  localStorage.fav = '[]';
-  renderFav();
-};
-
-// 重置
-document.getElementById('resetBtn').onclick = () => {
-  map.src = url[now];
-};
-
-// 开机自动定位
-window.onload = () => {
-  renderHistory();
-  renderFav();
-  doLocation();
-};
-</script>
+        // 点击复制
+        shortUrl.addEventListener('click', () => {
+            navigator.clipboard.writeText(shortUrl.textContent).then(() => {
+                alert('已复制到剪贴板');
+            }).catch(err => {
+                alert('复制失败，请手动复制');
+            });
+        });
+    </script>
 </body>
 </html>
