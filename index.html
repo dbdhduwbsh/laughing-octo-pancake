@@ -1,147 +1,1254 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>短网址生成</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
-        body {
-            background-color: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 500px;
-        }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 25px;
-            color: #333;
-        }
-        .input-box {
-            margin-bottom: 20px;
-        }
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border 0.3s;
-        }
-        input:focus {
-            border-color: #409eff;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #409eff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #338eef;
-        }
-        .result-box {
-            margin-top: 25px;
-            padding: 15px;
-            background: #f0f7ff;
-            border-radius: 8px;
-            display: none;
-        }
-        .result-box.show {
-            display: block;
-        }
-        .result-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .short-url {
-            font-size: 16px;
-            color: #409eff;
-            word-break: break-all;
-            cursor: pointer;
-        }
-        .tip {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>局域网协作平台 · 全能终极版</title>
+<style>
+:root {
+  --bg: #111827;
+  --sidebar: #1f2937;
+  --header: #1f2937;
+  --border: #374151;
+  --text: #e5e7eb;
+  --text2: #9ca3af;
+  --accent: #4f46e5;
+  --msg-me: #4f46e5;
+  --msg-other: #374151;
+  --input: #374151;
+  --hover: #4b5563;
+  --scroll: #6b7280;
+}
+.theme-light {
+  --bg: #ffffff;
+  --sidebar: #f9fafb;
+  --header: #f9fafb;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text2: #6b7280;
+  --accent: #4f46e5;
+  --msg-me: #4f46e5;
+  --msg-other: #e5e7eb;
+  --input: #f3f4f6;
+  --hover: #e5e7eb;
+  --scroll: #d1d5db;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  transition: all 0.2s;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 3px; }
+
+#app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.user-info {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--accent);
+}
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+.nav-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.nav-item:hover {
+  background: var(--hover);
+}
+.nav-item.active {
+  background: var(--accent);
+  color: white;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.header {
+  background: var(--header);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  justify-content: space-between;
+  height: 60px;
+}
+.room-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.announcement-bar {
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 6px 16px;
+  font-size: 13px;
+  border-left: 3px solid #22d3ee;
+}
+
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-size: cover;
+  background-position: center;
+}
+.pinned-label {
+  background: #f59e0b;
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+.message {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  position: relative;
+  animation: fadeIn 0.2s;
+}
+.message.mine {
+  align-self: flex-end;
+  background: var(--msg-me);
+  color: white;
+}
+.message.other {
+  align-self: flex-start;
+  background: var(--msg-other);
+}
+.msg-name {
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: var(--text2);
+}
+.msg-content {
+  line-height: 1.4;
+}
+.msg-at {
+  color: #60a5fa;
+  font-weight: 500;
+}
+.msg-read {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.msg-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: none;
+  gap: 4px;
+}
+.message:hover .msg-actions {
+  display: flex;
+}
+.msg-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.input-bar {
+  background: var(--header);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 6px;
+}
+#msgInput {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  background: var(--input);
+  color: var(--text);
+  padding: 0 12px;
+  outline: none;
+}
+.toolbar {
+  display: flex;
+  gap: 6px;
+}
+.btn {
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+.btn.secondary {
+  background: var(--input);
+}
+
+.emoji-panel {
+  position: absolute;
+  bottom: 80px;
+  background: var(--sidebar);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-width: 260px;
+  z-index: 99;
+}
+.emoji {
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+.emoji:hover {
+  background: var(--hover);
+}
+
+.file-progress {
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-top: 6px;
+  transition: width 0.2s;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal.show {
+  display: flex;
+}
+.modal-box {
+  background: var(--sidebar);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 460px;
+  padding: 20px;
+}
+.modal-title {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.input-group {
+  margin-bottom: 14px;
+}
+.input-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--text2);
+}
+.input-control {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--input);
+  border: none;
+  color: var(--text);
+  outline: none;
+}
+
+.video-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  flex: 1;
+}
+.video-box {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.video-name {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.5);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: white;
+}
+
+.files-list {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  flex: 1;
+  overflow-y: auto;
+}
+.file-item {
+  background: var(--input);
+  padding: 10px;
+  border-radius: 8px;
+}
+.file-name {
+  font-size: 14px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-preview {
+  max-width: 100%;
+  max-height: 120px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  object-fit: cover;
+}
+.down-btn {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.tab-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--header);
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tab.active {
+  background: var(--accent);
+  color: white;
+}
+.page {
+  display: none;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: column;
+}
+.page.show {
+  display: flex;
+}
+
+.settings {
+  padding: 16px;
+}
+.setting-item {
+  margin-bottom: 16px;
+}
+.setting-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.avatar-upload {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.avatar-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quick-reply {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.quick-item {
+  background: var(--input);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.file-input { display: none; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>短网址生成</h1>
-        <div class="input-box">
-            <input type="url" id="longUrl" placeholder="请输入需要缩短的网址">
-        </div>
-        <button id="createBtn">生成短网址</button>
 
-        <div class="result-box" id="resultBox">
-            <div class="result-title">短网址（点击复制）：</div>
-            <div class="short-url" id="shortUrl"></div>
-        </div>
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">局域网协作平台</div>
+      <div class="user-info">
+        <img id="myAvatar" class="avatar" src="">
+        <span id="myId">加载中…</span>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" data-page="chat">💬 聊天</div>
+      <div class="nav-item" data-page="call">📞 音视频</div>
+      <div class="nav-item" data-page="files">📁 文件库</div>
+      <div class="nav-item" data-page="settings">⚙ 设置</div>
+      <div class="nav-item" data-page="admin" id="adminItem" style="display:none;">🔧 管理</div>
+    </div>
+  </div>
 
-        <div class="tip">本地演示版，仅前端模拟生成</div>
+  <div class="main">
+    <div class="header">
+      <div class="room-name">公共群聊</div>
+      <button class="btn secondary" onclick="showRoomModal()">房间密码</button>
     </div>
 
-    <script>
-        const createBtn = document.getElementById('createBtn');
-        const longUrl = document.getElementById('longUrl');
-        const resultBox = document.getElementById('resultBox');
-        const shortUrl = document.getElementById('shortUrl');
+    <div class="announcement-bar" id="announceBar">公告：未设置公告</div>
 
-        // 模拟短网址生成
-        function makeShortUrl() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let str = '';
-            for (let i = 0; i < 6; i++) {
-                str += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return 'https://t.cn/' + str;
-        }
+    <!-- 聊天页 -->
+    <div class="page show" id="chatPage">
+      <div class="chat-area" id="chatArea"></div>
 
-        createBtn.addEventListener('click', () => {
-            const url = longUrl.value.trim();
-            if (!url) {
-                alert('请输入网址');
-                return;
-            }
-            const res = makeShortUrl();
-            shortUrl.textContent = res;
-            resultBox.classList.add('show');
-        });
+      <div class="quick-reply" id="quickWrap"></div>
 
-        // 点击复制
-        shortUrl.addEventListener('click', () => {
-            navigator.clipboard.writeText(shortUrl.textContent).then(() => {
-                alert('已复制到剪贴板');
-            }).catch(err => {
-                alert('复制失败，请手动复制');
-            });
-        });
-    </script>
+      <div class="input-bar">
+        <div class="toolbar">
+          <button class="btn secondary" onclick="toggleEmoji()">😊 表情</button>
+          <button class="btn secondary" onclick="openAtList()">@ 提及</button>
+          <button class="btn secondary" onclick="openSchedule()">⏰ 定时</button>
+          <button class="btn secondary" onclick="document.getElementById('fileInput').click()">📎 文件</button>
+          <button class="btn secondary" onclick="speakInput()">🔊 播报</button>
+        </div>
+        <input id="msgInput" placeholder="输入消息…">
+        <button class="btn" onclick="sendMsg()">发送</button>
+      </div>
+
+      <div id="emojiPanel" class="emoji-panel" style="display: none;"></div>
+    </div>
+
+    <!-- 音视频页 -->
+    <div class="page" id="callPage">
+      <div class="tab-bar">
+        <div class="tab active" data-call="video">视频通话</div>
+        <div class="tab active" data-call="audio">语音通话</div>
+      </div>
+      <div class="video-container" id="videos"></div>
+      <div style="padding:10px;display:flex;gap:10px;">
+        <button class="btn" onclick="startCall(true)">开启摄像头</button>
+        <button class="btn" onclick="startScreenShare()">屏幕共享</button>
+        <button class="btn secondary" onclick="hangup()">挂断</button>
+      </div>
+    </div>
+
+    <!-- 文件页 -->
+    <div class="page" id="filesPage">
+      <div class="files-list" id="filesList"></div>
+    </div>
+
+    <!-- 设置页 -->
+    <div class="page" id="settingsPage">
+      <div class="settings">
+        <div class="setting-item">
+          <label class="setting-label">头像</label>
+          <div class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
+            <img id="avatarPreview" src="">
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" class="file-input">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">用户名</label>
+          <input class="input-control" id="setName">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">主题</label>
+          <select class="input-control" id="themeSelect">
+            <option value="dark">深色</option>
+            <option value="light">浅色</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">聊天背景</label>
+          <input type="file" id="bgInput" accept="image/*" class="file-input">
+          <button class="btn secondary" style="margin-top:6px;" onclick="setChatBg()">设置背景</button>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">房间密码</label>
+          <input class="input-control" id="roomPwd" placeholder="留空则无密码">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">管理员密码</label>
+          <input class="input-control" id="adminPwd" placeholder="设置后成为管理员">
+        </div>
+        <button class="btn" style="margin-top:10px;" onclick="saveSettings()">保存设置</button>
+      </div>
+    </div>
+
+    <!-- 管理员页 -->
+    <div class="page" id="adminPage">
+      <div class="settings">
+        <div class="setting-item">
+          <label class="setting-label">群公告</label>
+          <input class="input-control" id="announceInput" placeholder="输入公告">
+          <button class="btn secondary" style="margin-top:6px;" onclick="setAnnounce()">发布公告</button>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">快捷回复</label>
+          <input class="input-control" id="quickInput" placeholder="用 | 分隔，例如：好的|收到|谢谢">
+          <button class="btn secondary" style="margin-top:6px;" onclick="setQuick()">设置快捷短语</button>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">用户管理</label>
+          <div id="userList" style="display:grid;gap:6px;"></div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label">清空本地历史</label>
+          <button class="btn secondary" onclick="clearHistory()">清空聊天记录</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 密码弹窗 -->
+<div class="modal" id="roomModal">
+  <div class="modal-box">
+    <div class="modal-title">房间密码验证</div>
+    <div class="input-group">
+      <label class="input-label">输入房间密码</label>
+      <input class="input-control" id="inputPwd" type="password">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="checkRoomPwd()">进入</button>
+      <button class="btn secondary" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- @用户列表弹窗 -->
+<div class="modal" id="atModal">
+  <div class="modal-box">
+    <div class="modal-title">提及用户</div>
+    <div id="atList" style="display:grid;gap:6px;max-height:260px;overflow-y:auto;"></div>
+    <div class="modal-btns">
+      <button class="btn secondary" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 定时发送弹窗 -->
+<div class="modal" id="scheduleModal">
+  <div class="modal-box">
+    <div class="modal-title">定时发送消息</div>
+    <div class="input-group">
+      <label class="input-label">消息内容</label>
+      <input class="input-control" id="scheduleText">
+    </div>
+    <div class="input-group">
+      <label class="input-label">延迟秒数</label>
+      <input class="input-control" id="scheduleSec" type="number" value="10">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="setSchedule()">确认定时</button>
+      <button class="btn secondary" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// 全局基础配置
+// ==========================================
+const userId = Math.random().toString(36).slice(2, 10);
+let myName = localStorage.getItem('userName') || '用户' + userId.slice(-4);
+let myAvatar = localStorage.getItem('userAvatar') || '';
+let roomPassword = localStorage.getItem('roomPwd') || '';
+let adminPassword = localStorage.getItem('adminPwd') || '';
+let currentTheme = localStorage.getItem('theme') || 'dark';
+let chatBg = localStorage.getItem('chatBg') || '';
+let announcement = localStorage.getItem('announcement') || '公告：未设置公告';
+let quickList = localStorage.getItem('quickList')?.split('|') || ['好的','收到','谢谢','没问题'];
+let isAdmin = !!adminPassword;
+
+let messageList = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+let pinnedMsg = localStorage.getItem('pinnedMsg') || '';
+let onlineUsers = {};
+let mutedUsers = JSON.parse(localStorage.getItem('mutedUsers') || '[]');
+let files = {};
+let localStream = null;
+let screenStream = null;
+let pcMap = {};
+
+const iceConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+// ==========================================
+// 初始化
+// ==========================================
+window.onload = () => {
+  initTheme();
+  initUser();
+  initNav();
+  initEmoji();
+  initSignaling();
+  bindEvents();
+  loadChatBg();
+  renderAnnounce();
+  renderQuick();
+  renderChat();
+  onlineUsers[userId] = { name: myName, avatar: myAvatar };
+  if(isAdmin) document.getElementById('adminItem').style.display = 'block';
+};
+
+// ==========================================
+// 主题
+// ==========================================
+function initTheme() {
+  document.documentElement.className = currentTheme === 'light' ? 'theme-light' : '';
+  document.getElementById('themeSelect').value = currentTheme;
+}
+function switchTheme(v) {
+  currentTheme = v;
+  localStorage.setItem('theme', v);
+  document.documentElement.className = v === 'light' ? 'theme-light' : '';
+}
+
+// ==========================================
+// 用户 & 头像
+// ==========================================
+function initUser() {
+  document.getElementById('myId').textContent = myName;
+  document.getElementById('myAvatar').src = myAvatar;
+  document.getElementById('avatarPreview').src = myAvatar;
+  document.getElementById('setName').value = myName;
+  document.getElementById('roomPwd').value = roomPassword;
+  document.getElementById('adminPwd').value = adminPassword;
+  document.getElementById('announceInput').value = announcement;
+}
+function uploadAvatar(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    myAvatar = r.result;
+    localStorage.setItem('userAvatar', myAvatar);
+    initUser();
+  };
+  r.readAsDataURL(f);
+}
+
+// ==========================================
+// 聊天背景
+// ==========================================
+function setChatBg() {
+  const f = document.getElementById('bgInput').files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    chatBg = r.result;
+    localStorage.setItem('chatBg', chatBg);
+    loadChatBg();
+  };
+  r.readAsDataURL(f);
+}
+function loadChatBg() {
+  const area = document.getElementById('chatArea');
+  if(chatBg) area.style.backgroundImage = `url(${chatBg})`;
+  else area.style.backgroundImage = 'none';
+}
+
+// ==========================================
+// 群公告
+// ==========================================
+function setAnnounce() {
+  announcement = document.getElementById('announceInput').value || '公告：未设置公告';
+  localStorage.setItem('announcement', announcement);
+  renderAnnounce();
+  send({type:'announce', content: announcement});
+}
+function renderAnnounce() {
+  document.getElementById('announceBar').innerText = announcement;
+}
+
+// ==========================================
+// 快捷回复
+// ==========================================
+function setQuick() {
+  const val = document.getElementById('quickInput').value.trim();
+  if(!val) return;
+  quickList = val.split('|');
+  localStorage.setItem('quickList', quickList.join('|'));
+  renderQuick();
+}
+function renderQuick() {
+  const wrap = document.getElementById('quickWrap');
+  wrap.innerHTML = '';
+  quickList.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'quick-item';
+    d.textContent = t;
+    d.onclick = () => {
+      document.getElementById('msgInput').value = t;
+    };
+    wrap.appendChild(d);
+  });
+}
+
+// ==========================================
+// 导航切换
+// ==========================================
+function initNav() {
+  const navItems = document.querySelectorAll('.nav-item');
+  const pages = document.querySelectorAll('.page');
+  navItems.forEach(n => {
+    n.onclick = () => {
+      navItems.forEach(i => i.classList.remove('active'));
+      pages.forEach(p => p.classList.remove('show'));
+      n.classList.add('active');
+      document.getElementById(n.dataset.page + 'Page').classList.add('show');
+      if(n.dataset.page === 'admin') refreshAdminList();
+    };
+  });
+  document.querySelectorAll('.tab').forEach(t => {
+    t.onclick = () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    };
+  });
+}
+
+// ==========================================
+// 表情面板
+// ==========================================
+const emojis = ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','🥳','😜','😝','🤑','🤗','🤩','🤔','🤫','😴','😤','🤮','🤬','😳','🥺','😢','😭','😵','😇','😈','👻','👽','🙈','🙉','🙊','💌','💘','💓','💗','💖','💚','💙','💛','🤍','🤎','🖤','❤️','💋','👋','🤚','🖐','✋','🤌','🤏','👍','👎','✌','🤞','🤟','🤘','🤙','👌','👈','👉','👆','👇','☝','👀','👤','👥','👶','👧','👦','👩','👨','👵','👴','🙋','🙌','🙏','💪','🦵','🦶','👂','👃','🧠','👁','👅','👄'];
+
+function initEmoji() {
+  const p = document.getElementById('emojiPanel');
+  emojis.forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'emoji';
+    d.textContent = e;
+    d.onclick = () => insertEmoji(e);
+    p.appendChild(d);
+  });
+}
+function toggleEmoji() {
+  const p = document.getElementById('emojiPanel');
+  p.style.display = p.style.display === 'none' ? 'grid' : 'none';
+}
+function insertEmoji(e) {
+  const i = document.getElementById('msgInput');
+  i.value += e;
+  i.focus();
+}
+
+// ==========================================
+// 语音播报
+// ==========================================
+function speakInput() {
+  const text = document.getElementById('msgInput').value.trim();
+  if(!text) return;
+  const s = new SpeechSynthesisUtterance();
+  s.text = text;
+  speechSynthesis.speak(s);
+}
+
+// ==========================================
+// 弹窗通用
+// ==========================================
+function closeModal() {
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+}
+function showRoomModal() {
+  document.getElementById('roomModal').classList.add('show');
+}
+function checkRoomPwd() {
+  const val = document.getElementById('inputPwd').value;
+  if (val === roomPassword || !roomPassword) {
+    closeModal();
+  } else {
+    alert('密码错误');
+  }
+}
+function openSchedule() {
+  document.getElementById('scheduleModal').classList.add('show');
+}
+
+// ==========================================
+// @某人
+// ==========================================
+function openAtList() {
+  const list = document.getElementById('atList');
+  list.innerHTML = '';
+  for (const uid in onlineUsers) {
+    const u = onlineUsers[uid];
+    const item = document.createElement('div');
+    item.className = 'nav-item';
+    item.textContent = u.name;
+    item.onclick = () => {
+      document.getElementById('msgInput').value += `@${u.name} `;
+      closeModal();
+    };
+    list.appendChild(item);
+  }
+  document.getElementById('atModal').classList.add('show');
+}
+
+// ==========================================
+// 定时发送
+// ==========================================
+function setSchedule() {
+  const text = document.getElementById('scheduleText').value.trim();
+  const sec = parseInt(document.getElementById('scheduleSec').value) || 10;
+  if(!text) return;
+  closeModal();
+  setTimeout(() => {
+    const mid = Date.now() + '';
+    addMessage({mid, from: userId, name: myName, content: text, mine: true, read: true});
+    send({type:'msg', mid, content: text});
+  }, sec * 1000);
+  alert('已设置定时发送');
+}
+
+// ==========================================
+// 信令
+// ==========================================
+let ws;
+function initSignaling() {
+  try {
+    ws = new WebSocket('wss://cloud.webrtc.ren:9090');
+    ws.onmessage = e => {
+      const d = JSON.parse(e.data);
+      if (d.roomPwd && d.roomPwd !== roomPassword) return;
+      if (d.type === 'user') onlineUsers[d.from] = { name: d.name, avatar: d.avatar };
+      if (d.type === 'msg') handleMsg(d);
+      if (d.type === 'recall') handleRecall(d);
+      if (d.type === 'read') handleRead(d);
+      if (d.type === 'file') handleFileInfo(d);
+      if (d.type === 'mute') handleMute(d);
+      if (d.type === 'announce') { announcement = d.content; localStorage.setItem('announcement',announcement); renderAnnounce(); }
+      if (d.type === 'pin') { pinnedMsg = d.mid; localStorage.setItem('pinnedMsg',pinnedMsg); renderChat(); }
+      if (d.type === 'offer') handleOffer(d);
+      if (d.type === 'answer') handleAnswer(d);
+      if (d.type === 'ice') handleIce(d);
+    };
+    setInterval(() => send({ type: 'user' }), 2000);
+  } catch (e) {}
+}
+
+function send(data) {
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify({
+      ...data, from: userId, name: myName, avatar: myAvatar, roomPwd: roomPassword
+    }));
+  }
+}
+
+// ==========================================
+// 消息 & 撤回 & 已读 & 本地持久化 & 置顶
+// ==========================================
+function sendMsg() {
+  if(mutedUsers.includes(userId)) return alert('你已被禁言');
+  const txt = document.getElementById('msgInput').value.trim();
+  if (!txt) return;
+  const mid = Date.now() + '';
+  addMessage({
+    mid, from: userId, name: myName, content: txt, mine: true, read: true
+  });
+  send({ type: 'msg', mid, content: txt });
+  document.getElementById('msgInput').value = '';
+  document.getElementById('emojiPanel').style.display = 'none';
+}
+
+function addMessage(msg) {
+  messageList.push(msg);
+  if(messageList.length > 300) messageList.shift();
+  localStorage.setItem('chatHistory', JSON.stringify(messageList));
+  renderChat();
+}
+
+function renderChat() {
+  const area = document.getElementById('chatArea');
+  area.innerHTML = '';
+
+  if(pinnedMsg) {
+    const pin = messageList.find(m => m.mid === pinnedMsg);
+    if(pin) {
+      const pinDiv = document.createElement('div');
+      pinDiv.className = 'message ' + (pin.mine ? 'mine' : 'other');
+      pinDiv.innerHTML = `
+        <div class="pinned-label">置顶</div>
+        <div class="msg-content">${pin.content.replace(/@([^\s]+)/g,'<span class="msg-at">@$1</span>')}</div>
+      `;
+      area.appendChild(pinDiv);
+    }
+  }
+
+  messageList.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'message ' + (m.mine ? 'mine' : 'other');
+    div.dataset.mid = m.mid;
+
+    if (!m.mine) {
+      const name = document.createElement('div');
+      name.className='msg-name';
+      name.textContent = m.name;
+      div.appendChild(name);
+    }
+
+    const content = document.createElement('div');
+    content.className = 'msg-content';
+    let html = m.content.replace(/@([^\s]+)/g, '<span class="msg-at">@$1</span>');
+    content.innerHTML = html;
+    div.appendChild(content);
+
+    const read = document.createElement('div');
+    read.className='msg-read';
+    read.textContent = m.read ? '已读' : '未读';
+    div.appendChild(read);
+
+    const actions = document.createElement('div');
+    actions.className='msg-actions';
+    if (m.mine || isAdmin) {
+      const btn1 = document.createElement('button');
+      btn1.className='msg-btn';
+      btn1.textContent='×';
+      btn1.onclick=()=>recallMessage(m.mid);
+      actions.appendChild(btn1);
+
+      if(isAdmin) {
+        const btn2 = document.createElement('button');
+        btn2.className='msg-btn';
+        btn2.textContent='顶';
+        btn2.onclick=()=>pinMessage(m.mid);
+        actions.appendChild(btn2);
+      }
+    }
+    div.appendChild(actions);
+    area.appendChild(div);
+  });
+  area.scrollTop = 1e9;
+}
+
+function pinMessage(mid) {
+  pinnedMsg = mid;
+  localStorage.setItem('pinnedMsg', mid);
+  send({type:'pin', mid});
+  renderChat();
+}
+
+function handleMsg(d) {
+  if(mutedUsers.includes(d.from)) return;
+  addMessage({
+    mid: d.mid, from: d.from, name: d.name, content: d.content, mine: false, read: false
+  });
+  send({ type: 'read', mid: d.mid });
+}
+
+function recallMessage(mid) {
+  send({ type: 'recall', mid });
+  messageList = messageList.filter(m => m.mid !== mid);
+  localStorage.setItem('chatHistory', JSON.stringify(messageList));
+  renderChat();
+}
+function handleRecall(d) {
+  messageList = messageList.filter(m => m.mid !== d.mid);
+  localStorage.setItem('chatHistory', JSON.stringify(messageList));
+  renderChat();
+}
+
+function handleRead(d) {
+  messageList.forEach(m => { if (m.mid === d.mid) m.read = true });
+  renderChat();
+}
+
+// ==========================================
+// 文件传输 + 预览
+// ==========================================
+function sendFiles(e) {
+  if(mutedUsers.includes(userId)) return alert('你已被禁言');
+  const filesArr = Array.from(e.target.files);
+  filesArr.forEach(file => {
+    const reader = new FileReader();
+    const fid = Date.now() + '';
+    reader.onload = () => {
+      files[fid] = {
+        name: file.name, type: file.type, data: reader.result, progress: 100
+      };
+      send({ type: 'file', fid, fname: file.name, ftype: file.type });
+      refreshFiles();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleFileInfo(d) {
+  files[d.fid] = { name: d.fname, type: d.ftype, data: '', progress: 0 };
+  refreshFiles();
+  setTimeout(() => {
+    files[d.fid].progress = 100;
+    refreshFiles();
+  }, 600);
+}
+
+function refreshFiles() {
+  const list = document.getElementById('filesList');
+  list.innerHTML = '';
+  for (const fid in files) {
+    const f = files[fid];
+    const item = document.createElement('div');
+    item.className = 'file-item';
+
+    if(f.type.startsWith('image/') && f.data) {
+      const img = document.createElement('img');
+      img.className = 'file-preview';
+      img.src = f.data;
+      item.appendChild(img);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'file-name';
+    name.textContent = f.name;
+    item.appendChild(name);
+
+    const prog = document.createElement('div');
+    prog.className = 'file-progress';
+    prog.style.width = f.progress + '%';
+    item.appendChild(prog);
+
+    const btn = document.createElement('button');
+    btn.className = 'down-btn';
+    btn.textContent = f.progress >=100 ? '下载' : '接收中…';
+    btn.disabled = f.progress <100;
+    btn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = f.data;
+      a.download = f.name;
+      a.click();
+    };
+    item.appendChild(btn);
+    list.appendChild(item);
+  }
+}
+
+// ==========================================
+// 音视频 & 屏幕共享
+// ==========================================
+async function startCall(enableVideo) {
+  localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: enableVideo });
+  addVideo(userId, myName, localStream);
+  broadcastCall();
+}
+async function startScreenShare() {
+  screenStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
+  addVideo(userId, myName + '（屏幕）', screenStream);
+  broadcastCall();
+}
+function addVideo(uid, name, stream) {
+  const box = document.createElement('div');
+  box.className = 'video-box';
+  const video = document.createElement('video');
+  video.autoplay = true; video.playsInline = true; video.srcObject = stream;
+  const uname = document.createElement('div');
+  uname.className = 'video-name';
+  uname.textContent = name;
+  box.appendChild(video);
+  box.appendChild(uname);
+  document.getElementById('videos').appendChild(box);
+}
+function hangup() {
+  if (localStream) localStream.getTracks().forEach(t => t.stop());
+  if (screenStream) screenStream.getTracks().forEach(t => t.stop());
+  localStream = null; screenStream = null; pcMap = {};
+  document.getElementById('videos').innerHTML = '';
+}
+async function broadcastCall() {
+  for (const uid in onlineUsers) {
+    if (uid === userId) continue;
+    await makeOffer(uid);
+  }
+}
+async function makeOffer(peerId) {
+  const pc = new RTCPeerConnection(iceConfig);
+  pcMap[peerId] = pc;
+  if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  if (screenStream) screenStream.getTracks().forEach(t => pc.addTrack(t, screenStream));
+  pc.onicecandidate = e => e.candidate && send({ type: 'ice', to: peerId, data: e.candidate });
+  pc.ontrack = e => addVideo(peerId, onlineUsers[peerId]?.name || peerId, e.streams[0]);
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  send({ type: 'offer', to: peerId, data: offer });
+}
+async function handleOffer(d) {
+  const pc = new RTCPeerConnection(iceConfig);
+  pcMap[d.from] = pc;
+  if (localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+  if (screenStream) screenStream.getTracks().forEach(t => pc.addTrack(t, screenStream));
+  pc.onicecandidate = e => e.candidate && send({ type: 'ice', to: d.from, data: e.candidate });
+  pc.ontrack = e => addVideo(d.from, d.name, e.streams[0]);
+  await pc.setRemoteDescription(d.data);
+  const ans = await pc.createAnswer();
+  await pc.setLocalDescription(ans);
+  send({ type: 'answer', to: d.from, data: ans });
+}
+async function handleAnswer(d) {
+  await pcMap[d.from].setRemoteDescription(d.data);
+}
+async function handleIce(d) {
+  await pcMap[d.from].addIceCandidate(new RTCIceCandidate(d.data));
+}
+
+// ==========================================
+// 管理员 & 禁言
+// ==========================================
+function refreshAdminList() {
+  const list = document.getElementById('userList');
+  list.innerHTML = '';
+  for(const uid in onlineUsers) {
+    const u = onlineUsers[uid];
+    const item = document.createElement('div');
+    item.className = 'nav-item';
+    item.style.display = 'flex';
+    item.style.justifyContent = 'space-between';
+    item.innerHTML = `
+      <span>${u.name}</span>
+      <button class="btn secondary" style="padding:2px 6px;font-size:12px;" onclick="toggleMute('${uid}')">
+        ${mutedUsers.includes(uid)?'解禁':'禁言'}
+      </button>
+    `;
+    list.appendChild(item);
+  }
+}
+function toggleMute(uid) {
+  if(!mutedUsers.includes(uid)) mutedUsers.push(uid);
+  else mutedUsers = mutedUsers.filter(x=>x!==uid);
+  localStorage.setItem('mutedUsers', JSON.stringify(mutedUsers));
+  send({type:'mute', list:mutedUsers});
+  refreshAdminList();
+}
+function handleMute(d) {
+  if(!isAdmin) return;
+  mutedUsers = d.list;
+  localStorage.setItem('mutedUsers', JSON.stringify(mutedUsers));
+  refreshAdminList();
+}
+function clearHistory() {
+  messageList = [];
+  localStorage.removeItem('chatHistory');
+  renderChat();
+  alert('已清空本地历史');
+}
+
+// ==========================================
+// 设置保存
+// ==========================================
+function saveSettings() {
+  myName = document.getElementById('setName').value.trim() || myName;
+  roomPassword = document.getElementById('roomPwd').value;
+  adminPassword = document.getElementById('adminPwd').value;
+  isAdmin = !!adminPassword;
+  localStorage.setItem('userName', myName);
+  localStorage.setItem('roomPwd', roomPassword);
+  localStorage.setItem('adminPwd', adminPassword);
+  switchTheme(document.getElementById('themeSelect').value);
+  initUser();
+  if(isAdmin) document.getElementById('adminItem').style.display = 'block';
+  else document.getElementById('adminItem').style.display = 'none';
+  alert('保存成功');
+}
+
+// ==========================================
+// 事件绑定
+// ==========================================
+function bindEvents() {
+  document.getElementById('msgInput').addEventListener('keydown',e=>e.key==='Enter'&&sendMsg());
+  document.getElementById('avatarInput').addEventListener('change', uploadAvatar);
+  document.getElementById('fileInput').addEventListener('change', sendFiles);
+}
+</script>
 </body>
 </html>
