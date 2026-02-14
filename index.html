@@ -1,715 +1,241 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>全能聊天</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZeroGlass Room Chat</title>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  -webkit-tap-highlight-color: transparent;
+#zero-glass-app {
+  all: initial;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
-
-:root {
-  --bg: #111827;
-  --sidebar: #1f2937;
-  --header: #1f2937;
-  --border: #374151;
-  --text: #e5e7eb;
-  --text2: #9ca3af;
-  --accent: #4f6eef;
-  --msg-me: #4f6eef;
-  --msg-other: #374151;
-  --input: #374151;
-  --hover: #4b5666;
-  --scroll: #6b7280;
+#zero-glass-app * {
+  margin:0; padding:0; box-sizing:border-box;
 }
-
-.theme-light {
-  --bg: #fff;
-  --sidebar: #f9fafb;
-  --header: #f9fafb;
-  --border: #e5e7eb;
-  --text: #111827;
-  --text2: #6b7280;
-  --accent: #4f6eef;
-  --msg-me: #4f6eef;
-  --msg-other: #e5e7eb;
-  --input: #f3f4f6;
-  --hover: #e5e7eb;
-  --scroll: #d1d5db;
-}
-
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  overflow: hidden;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-/* 手机顶部导航 */
-.mobile-nav {
-  display: flex;
-  background: var(--header);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 10px;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.mobile-nav::-webkit-scrollbar { display: none; }
-.mobile-nav button {
-  background: var(--input);
-  border: none;
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  white-space: nowrap;
-}
-.mobile-nav button.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* 页面容器 */
-.pages {
-  flex: 1;
-  position: relative;
-}
-.page {
-  position: absolute;
-  inset: 0;
-  display: none;
-  flex-direction: column;
-}
-.page.show {
-  display: flex;
-}
-
-/* 聊天头部 */
-.chat-header {
-  background: var(--header);
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.room-name {
-  font-size: 16px;
-  font-weight: 600;
-}
-.chat-header .btn {
-  padding: 6px 10px;
-  font-size: 13px;
-}
-
-/* 公告 */
-.announcement-bar {
-  background: #1e293b;
-  color: #f1f5f9;
-  padding: 6px 16px;
-  font-size: 13px;
-  border-left: 4px solid #38bdf8;
-}
-
-/* 聊天区域 */
-.chat-area {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-size: cover;
-  background-position: center;
-}
-.pinned-label {
-  background: #f59e0b;
-  color: #fff;
-  font-size: 11px;
-  padding: 1px 4px;
-  border-radius: 3px;
-  margin-bottom: 4px;
-  display: inline-block;
-}
-.message {
-  max-width: 80%;
-  padding: 10px 12px;
-  border-radius: 12px;
-  position: relative;
-  animation: fadeIn 0.2s;
-  font-size: 15px;
-  line-height: 1.4;
-}
-.message.mine {
-  align-self: flex-end;
-  background: var(--msg-me);
-  color: white;
-  border-bottom-right-radius: 4px;
-}
-.message.other {
-  align-self: flex-start;
-  background: var(--msg-other);
-  border-bottom-left-radius: 4px;
-}
-.msg-name {
-  font-size: 12px;
-  color: var(--text2);
-  margin-bottom: 3px;
-}
-.msg-at {
-  color: #38bdf8;
-  font-weight: 500;
-}
-.msg-actions {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: none;
-  gap: 4px;
-}
-.message:hover .msg-actions {
-  display: flex;
-}
-.msg-btn {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background: #0003;
-  color: #fff;
-  border: none;
-  font-size: 12px;
-}
-
-/* 快捷回复 */
-.quick-reply {
-  display: flex;
-  gap: 6px;
-  padding: 6px 12px;
-  flex-wrap: wrap;
-}
-.quick-item {
-  background: var(--input);
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  border: none;
-  color: var(--text);
-}
-
-/* 输入栏 */
-.input-bar {
-  background: var(--header);
-  border-top: 1px solid var(--border);
-  padding: 10px;
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
-#msgInput {
-  flex: 1;
-  min-height: 40px;
-  max-height: 100px;
-  border-radius: 10px;
-  border: none;
-  background: var(--input);
-  color: var(--text);
-  padding: 10px 12px;
-  outline: none;
-  font-size: 15px;
-  resize: none;
-}
-.toolbar {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 5px;
-}
-.btn {
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 10px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  font-size: 14px;
-  white-space: nowrap;
-}
-.btn.secondary {
-  background: var(--input);
-  color: var(--text);
-}
-
-/* 表情面板 */
-.emoji-panel {
-  position: absolute;
-  bottom: 130px;
-  left: 10px;
-  right: 10px;
-  background: var(--sidebar);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 6px;
-  max-height: 220px;
-  overflow-y: auto;
-  z-index: 99;
-}
-.emoji {
-  padding: 6px;
-  text-align: center;
-  border-radius: 6px;
-  font-size: 16px;
-}
-.emoji:hover {
-  background: var(--hover);
-}
-
-/* 弹窗 */
-.modal {
+.zg-container {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: none;
+  background: linear-gradient(135deg, #293052, #1a1c30);
+  display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
-  padding: 20px;
+  color: #e0e0e0;
 }
-.modal.show {
+.zg-glass {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  transition: all 0.28s ease;
+}
+.zg-glass:hover {
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+.zg-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 26px;
   display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
-.modal-box {
-  background: var(--sidebar);
-  border-radius: 12px;
-  width: 100%;
-  max-width: 380px;
-  padding: 20px;
+.zg-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
 }
-.modal-title {
-  font-size: 17px;
-  margin-bottom: 14px;
-}
-.input-group {
-  margin-bottom: 12px;
-}
-.input-label {
-  font-size: 14px;
-  margin-bottom: 6px;
-  display: block;
-}
-.input-control {
-  width: 100%;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--input);
-  color: var(--text);
-  border: none;
-  padding: 0 12px;
-  outline: none;
-}
-.modal-btns {
+.zg-status {
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin-top: 16px;
-  justify-content: flex-end;
-}
-
-/* 视频 & 文件 */
-.video-container, .files-list {
-  flex: 1;
-  padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 10px;
-  overflow-y: auto;
-}
-.video-box {
-  background: #000;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-}
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.video-name {
-  position: absolute;
-  bottom: 6px;
-  left: 6px;
-  background: #0006;
-  color: #fff;
-  padding: 3px 6px;
-  border-radius: 6px;
-  font-size: 12px;
-}
-.file-item {
-  background: var(--input);
-  padding: 10px;
-  border-radius: 10px;
-}
-.file-name {
   font-size: 14px;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-indent: 0;
 }
-.file-preview {
-  max-width: 100%;
-  max-height: 100px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  object-fit: cover;
-}
-.down-btn {
-  width: 100%;
-  padding: 6px;
-  border-radius: 6px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-}
-
-/* 设置页 */
-.settings {
-  padding: 16px;
-  overflow-y: auto;
-}
-.setting-item {
-  margin-bottom: 16px;
-}
-.setting-label {
-  font-size: 15px;
-  margin-bottom: 8px;
-  display: block;
-}
-.avatar-upload {
-  width: 70px;
-  height: 70px;
+.zg-status-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--input);
+  background: #ff4444;
+}
+.zg-status-dot.online {
+  background: #00c853;
+}
+.zg-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin-bottom: 10px;
+  gap: 10px;
 }
-.avatar-upload img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.zg-input {
+  flex: 1;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #fff;
+  outline: none;
+  font-size: 15px;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+.zg-input::placeholder {
+  color: rgba(255,255,255,0.4);
 }
-
-.file-input {
+.zg-btn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.zg-btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+.zg-chat {
+  height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.15);
+}
+.zg-msg {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  max-width: 75%;
+  word-break: break-word;
+}
+.zg-msg.self {
+  align-self: flex-end;
+  background: rgba(96,108,255,0.25);
+}
+.zg-file {
+  color: #6cf;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.zg-footer {
+  display: flex;
+  gap: 10px;
+}
+#zg-file-input {
   display: none;
 }
 </style>
 </head>
 <body>
-
-<div id="app">
-  <!-- 手机顶部导航 -->
-  <div class="mobile-nav">
-    <button onclick="showPage('chat')" class="active" id="nav_chat">💬 聊天</button>
-    <button onclick="showPage('call')" id="nav_call">📞 通话</button>
-    <button onclick="showPage('files')" id="nav_files">📁 文件</button>
-    <button onclick="showPage('settings')" id="nav_settings">⚙ 设置</button>
-    <button onclick="showPage('admin')" id="nav_admin" style="display:none;">🔧 管理</button>
-  </div>
-
-  <div class="pages">
-    <!-- 聊天页 -->
-    <div class="page show" id="chatPage">
-      <div class="chat-header">
-        <div class="room-name">公共群聊</div>
-        <button class="btn secondary" onclick="showRoomModal()">房间密码</button>
+<div id="zero-glass-app">
+  <div class="zg-container">
+    <div class="zg-card zg-glass">
+      <div class="zg-title">ZeroGlass 房间群聊</div>
+      <div class="zg-status">
+        <div id="zg-status-dot" class="zg-status-dot"></div>
+        <span id="zg-status-text">未连接</span>
       </div>
-      <div class="announcement-bar" id="announceBar">公告：未设置公告</div>
-      <div class="chat-area" id="chatArea"></div>
-      <div class="quick-reply" id="quickWrap"></div>
-      <div class="input-bar">
-        <div class="toolbar">
-          <button class="btn secondary" onclick="toggleEmoji()">😊</button>
-          <button class="btn secondary" onclick="openAtList()">@</button>
-          <button class="btn secondary" onclick="openSchedule()">⏰</button>
-          <button class="btn secondary" onclick="document.getElementById('fileInput').click()">📎</button>
-          <button class="btn secondary" onclick="speakInput()">🔊</button>
-        </div>
-        <textarea id="msgInput" placeholder="输入消息…" rows="1"></textarea>
-        <button class="btn" onclick="sendMsg()">发送</button>
+      <div class="zg-row">
+        <input id="zg-room" class="zg-input" placeholder="输入房间码" type="text">
+        <button class="zg-btn" onclick="ZeroApp.joinRoom()">加入</button>
       </div>
-      <div class="emoji-panel" id="emojiPanel" style="display: none;"></div>
-    </div>
-
-    <!-- 通话页 -->
-    <div class="page" id="callPage">
-      <div class="chat-header">
-        <div class="room-name">视频通话</div>
+      <div id="zg-chat" class="zg-chat"></div>
+      <div class="zg-footer">
+        <input class="zg-input" id="zg-msg" placeholder="输入消息" onkeydown="if(event.key==='Enter')ZeroApp.sendMsg()">
+        <button class="zg-btn" onclick="ZeroApp.selectFile()">文件</button>
+        <button class="zg-btn" onclick="ZeroApp.sendMsg()">发送</button>
       </div>
-      <div class="video-container" id="videos"></div>
-      <div style="padding:10px;display:flex;gap:10px;">
-        <button class="btn" onclick="startCall(true)">开启摄像头</button>
-        <button class="btn" onclick="startScreenShare()">屏幕共享</button>
-        <button class="btn secondary" onclick="hangup()">挂断</button>
-      </div>
-    </div>
-
-    <!-- 文件页 -->
-    <div class="page" id="filesPage">
-      <div class="chat-header">
-        <div class="room-name">文件库</div>
-      </div>
-      <div class="files-list" id="filesList"></div>
-    </div>
-
-    <!-- 设置页 -->
-    <div class="page" id="settingsPage">
-      <div class="settings">
-        <div class="setting-item">
-          <label class="setting-label">头像</label>
-          <div class="avatar-upload" onclick="document.getElementById('avatarInput').click()">
-            <img id="avatarPreview" src="">
-          </div>
-          <input type="file" id="avatarInput" accept="image/*" class="file-input">
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">用户名</label>
-          <input class="input-control" id="setName">
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">主题</label>
-          <select class="input-control" id="themeSelect">
-            <option value="dark">深色</option>
-            <option value="light">浅色</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">聊天背景</label>
-          <input type="file" id="bgInput" accept="image/*" class="file-input">
-          <button class="btn secondary" style="margin-top:6px;" onclick="setChatBg()">设置背景</button>
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">房间密码</label>
-          <input class="input-control" id="roomPwd" placeholder="留空则无密码">
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">管理员密码</label>
-          <input class="input-control" id="adminPwd" placeholder="设置后成为管理员">
-        </div>
-        <button class="btn" style="margin-top:10px;width:100%;" onclick="saveSettings()">保存设置</button>
-      </div>
-    </div>
-
-    <!-- 管理页 -->
-    <div class="page" id="adminPage">
-      <div class="settings">
-        <div class="setting-item">
-          <label class="setting-label">群公告</label>
-          <input class="input-control" id="announceInput" placeholder="输入公告">
-          <button class="btn secondary" style="margin-top:6px;width:100%;" onclick="setAnnounce()">发布公告</button>
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">快捷回复</label>
-          <input class="input-control" id="quickInput" placeholder="用 | 分隔，例如：好的|收到|谢谢">
-          <button class="btn secondary" style="margin-top:6px;width:100%;" onclick="setQuick()">设置快捷短语</button>
-        </div>
-        <div class="setting-item">
-          <label class="setting-label">用户管理</label>
-          <div id="userList" style="display:grid;gap:6px;margin-top:6px;"></div>
-        </div>
-        <button class="btn secondary" style="margin-top:10px;width:100%;" onclick="clearHistory()">清空本地聊天记录</button>
-      </div>
+      <input type="file" id="zg-file-input" multiple>
     </div>
   </div>
 </div>
-
-<!-- 弹窗 -->
-<div class="modal" id="roomModal">
-  <div class="modal-box">
-    <div class="modal-title">房间密码验证</div>
-    <div class="input-group">
-      <input class="input-control" id="inputPwd" type="password" placeholder="输入密码">
-    </div>
-    <div class="modal-btns">
-      <button class="btn secondary" onclick="closeModal()">取消</button>
-      <button class="btn" onclick="checkRoomPwd()">进入</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="atModal">
-  <div class="modal-box">
-    <div class="modal-title">选择要@的用户</div>
-    <div id="atList" style="max-height:220px;overflow-y:auto;display:grid;gap:6px;margin-top:10px;"></div>
-    <div class="modal-btns">
-      <button class="btn" onclick="closeModal()">完成</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="scheduleModal">
-  <div class="modal-box">
-    <div class="modal-title">定时发送</div>
-    <div class="input-group">
-      <input class="input-control" id="scheduleText" placeholder="消息内容">
-    </div>
-    <div class="input-group">
-      <input class="input-control" id="scheduleSec" type="number" value="10" placeholder="秒数">
-    </div>
-    <div class="modal-btns">
-      <button class="btn secondary" onclick="closeModal()">取消</button>
-      <button class="btn" onclick="setSchedule()">确定</button>
-    </div>
-  </div>
-</div>
-
-<input type="file" id="fileInput" multiple class="file-input">
 
 <script>
-const userId = Math.random().toString(36).slice(2,10);
-let myName = localStorage.getItem('userName') || '用户'+userId.slice(-4);
-let myAvatar = localStorage.getItem('userAvatar') || '';
-let roomPassword = localStorage.getItem('roomPwd') || '';
-let adminPassword = localStorage.getItem('adminPwd') || '';
-let currentTheme = localStorage.getItem('theme') || 'dark';
-let chatBg = localStorage.getItem('chatBg') || '';
-let announcement = localStorage.getItem('announcement') || '公告：未设置公告';
-let quickList = localStorage.getItem('quickList')?.split('|') || ['好的','收到','谢谢','没问题'];
-let isAdmin = !!adminPassword;
+const ZeroApp = (function() {
+  const peer = new RTCPeerConnection({
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+  });
+  const channel = peer.createDataChannel('chat', { negotiated: true, id: 0 });
+  let room = '';
+  let connected = false;
 
-let messageList = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-let pinnedMsg = localStorage.getItem('pinnedMsg') || '';
-let onlineUsers = {};
-let mutedUsers = JSON.parse(localStorage.getItem('mutedUsers') || '[]');
-let files = {};
-let localStream = null;
-let screenStream = null;
-let pcMap = {};
-
-const iceConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-let ws;
-function initSignaling() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.host;
-  ws = new WebSocket(protocol + '//' + host);
-  ws.onopen = () => console.log('✅ 已连接服务器');
-  ws.onmessage = (e) => {
-    const d = JSON.parse(e.data);
-    if (d.roomPwd && d.roomPwd !== roomPassword) return;
-    if (d.type === 'user') onlineUsers[d.from] = { name:d.name, avatar:d.avatar };
-    if (d.type === 'msg') handleMsg(d);
-    if (d.type === 'recall') handleRecall(d);
-    if (d.type === 'read') handleRead(d);
-    if (d.type === 'file') handleFileInfo(d);
-    if (d.type === 'mute') handleMute(d);
-    if (d.type === 'announce') { announcement = d.content; localStorage.setItem('announcement',announcement); renderAnnounce(); }
-    if (d.type === 'pin') { pinnedMsg = d.mid; localStorage.setItem('pinnedMsg',pinnedMsg); renderChat(); }
-    if (d.type === 'offer') handleOffer(d);
-    if (d.type === 'answer') handleAnswer(d);
-    if (d.type === 'ice') handleIce(d);
-  };
-  setInterval(() => send({ type:'user' }), 2000);
-}
-
-function send(data) {
-  if (ws && ws.readyState === 1) {
-    ws.send(JSON.stringify({ ...data, from: userId, name: myName, avatar: myAvatar, roomPwd: roomPassword }));
+  function setStatus(isOnline, text) {
+    const dot = document.getElementById('zg-status-dot');
+    const txt = document.getElementById('zg-status-text');
+    dot.className = isOnline ? 'zg-status-dot online' : 'zg-status-dot';
+    txt.textContent = text;
+    connected = isOnline;
   }
-}
 
-// 手机页面切换
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
-  document.getElementById(page+'Page').classList.add('show');
-  document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav_'+page).classList.add('active');
-}
+  function addMsg(text, isSelf = false, file = null) {
+    const chat = document.getElementById('zg-chat');
+    const div = document.createElement('div');
+    div.className = 'zg-msg ' + (isSelf ? 'self' : '');
+    if (file) {
+      const a = document.createElement('a');
+      a.className = 'zg-file';
+      a.href = URL.createObjectURL(file);
+      a.download = file.name;
+      a.textContent = '文件: ' + file.name;
+      div.appendChild(a);
+    } else {
+      div.textContent = text;
+    }
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
 
-window.onload = () => {
-  initTheme(); initUser(); initEmoji(); initSignaling(); bindEvents();
-  loadChatBg(); renderAnnounce(); renderQuick(); renderChat();
-  onlineUsers[userId] = { name:myName, avatar:myAvatar };
-  if(isAdmin) document.getElementById('nav_admin').style.display = 'inline-block';
-};
+  channel.onopen = () => {
+    setStatus(true, '已连接房间: ' + room);
+  };
+  channel.onclose = () => {
+    setStatus(false, '连接断开');
+  };
+  channel.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      if (data.type === 'msg') {
+        addMsg(data.text, false);
+      } else if (data.type === 'file') {
+        const blob = new Blob([new Uint8Array(data.data)], { type: data.mime });
+        addMsg('', false, blob);
+      }
+    } catch (err) {}
+  };
 
-// 以下功能逻辑全部保留，不影响手机适配
-function initTheme(){
-  document.documentElement.className = currentTheme === 'light' ? 'theme-light' : '';
-  document.getElementById('themeSelect').value = currentTheme;
-}
-function switchTheme(v){ currentTheme = v; localStorage.setItem('theme',v); initTheme(); }
-function initUser(){
-  document.getElementById('avatarPreview').src = myAvatar;
-  document.getElementById('setName').value = myName;
-  document.getElementById('roomPwd').value = roomPassword;
-  document.getElementById('adminPwd').value = adminPassword;
-  document.getElementById('announceInput').value = announcement;
-}
-function uploadAvatar(e){ const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{myAvatar=r.result;localStorage.setItem('userAvatar',myAvatar);initUser();};r.readAsDataURL(f);}
-function setChatBg(){ const f=document.getElementById('bgInput').files[0];if(!f)return;const r=new FileReader();r.onload=()=>{chatBg=r.result;localStorage.setItem('chatBg',chatBg);loadChatBg();};r.readAsDataURL(f);}
-function loadChatBg(){ const a=document.getElementById('chatArea');if(chatBg)a.style.backgroundImage=`url(${chatBg})`;else a.style.backgroundImage='none';}
-function setAnnounce(){ announcement=document.getElementById('announceInput').value||'公告：未设置公告';localStorage.setItem('announcement',announcement);renderAnnounce();send({type:'announce',content:announcement});}
-function renderAnnounce(){ document.getElementById('announceBar').innerText=announcement; }
-function setQuick(){ const v=document.getElementById('quickInput').value.trim();if(!v)return;quickList=v.split('|');localStorage.setItem('quickList',quickList.join('|'));renderQuick();}
-function renderQuick(){ const w=document.getElementById('quickWrap');w.innerHTML='';quickList.forEach(t=>{const d=document.createElement('button');d.className='quick-item';d.textContent=t;d.onclick=()=>{document.getElementById('msgInput').value=t;};w.appendChild(d);});}
-const emojis=['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','🥳','😜','😝','🤑','🤗','🤩','🤔','🤫','😴','😤','🤮','🤬','😳','🥺','😢','😭','😵','😇','😈','👻','👽','🙈','🙉','🙊','💌','💘','💓','💗','💖','💚','💙','💛','🤍','🤎','🖤','❤️','💋','👋','🤚','🖐','✋','🤌','🤏','👍','👎','✌','🤞','🤟','🤘','🤙','👌','👈','👉','👆','👇','☝','👀','👤','👥','👶','👧','👦','👩','👨','👵','👴','🙋','🙌','🙏','💪','🦵','🦶','👂','👃','🧠','👁','👅','👄'];
-function initEmoji(){ const p=document.getElementById('emojiPanel');emojis.forEach(e=>{const d=document.createElement('div');d.className='emoji';d.textContent=e;d.onclick=()=>insertEmoji(e);p.appendChild(d);});}
-function toggleEmoji(){ const p=document.getElementById('emojiPanel');p.style.display=p.style.display==='none'?'grid':'none';}
-function insertEmoji(e){ const i=document.getElementById('msgInput');i.value+=e;i.focus();}
-function speakInput(){ const t=document.getElementById('msgInput').value.trim();if(!t)return;const u=new SpeechSynthesisUtterance();u.text=t;speechSynthesis.speak(u);}
-function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); }
-function showRoomModal(){ document.getElementById('roomModal').classList.add('show'); }
-function checkRoomPwd(){ const v=document.getElementById('inputPwd').value;if(v===roomPassword||!roomPassword)closeModal();else alert('密码错误');}
-function openSchedule(){ document.getElementById('scheduleModal').classList.add('show'); }
-function openAtList(){ const l=document.getElementById('atList');l.innerHTML='';for(const u in onlineUsers){const i=document.createElement('button');i.className='quick-item';i.textContent=onlineUsers[u].name;i.onclick=()=>{document.getElementById('msgInput').value+=`@${onlineUsers[u].name} `;};l.appendChild(i);}document.getElementById('atModal').classList.add('show');}
-function setSchedule(){ const t=document.getElementById('scheduleText').value.trim();const s=parseInt(document.getElementById('scheduleSec').value)||10;if(!t)return;closeModal();setTimeout(()=>{const mid=Date.now()+'';addMessage({mid,from:userId,name:myName,content:t,mine:true,read:true});send({type:'msg',mid,content:t});},s*1000);alert('已设置');}
-function sendMsg(){ if(mutedUsers.includes(userId))return alert('你已被禁言');const t=document.getElementById('msgInput').value.trim();if(!t)return;const mid=Date.now()+'';addMessage({mid,from:userId,name:myName,content:t,mine:true,read:true});send({type:'msg',mid,content:t});document.getElementById('msgInput').value='';document.getElementById('emojiPanel').style.display='none';}
-function addMessage(m){ messageList.push(m);if(messageList.length>300)messageList.shift();localStorage.setItem('chatHistory',JSON.stringify(messageList));renderChat();}
-function renderChat(){ const a=document.getElementById('chatArea');a.innerHTML='';if(pinnedMsg){const p=messageList.find(x=>x.mid===pinnedMsg);if(p){const d=document.createElement('div');d.className='message '+(p.mine?'mine':'other');d.innerHTML=`<div class="pinned-label">置顶</div><div class="msg-content">${p.content.replace(/@([^\s]+)/g,'<span class="msg-at">@$1</span>')}</div>`;a.appendChild(d);}}messageList.forEach(m=>{const d=document.createElement('div');d.className='message '+(m.mine?'mine':'other');d.dataset.mid=m.mid;if(!m.mine){const n=document.createElement('div');n.className='msg-name';n.textContent=m.name;d.appendChild(n);}const c=document.createElement('div');c.className='msg-content';c.innerHTML=m.content.replace(/@([^\s]+)/g,'<span class="msg-at">@$1</span>');d.appendChild(c);const ac=document.createElement('div');ac.className='msg-actions';if(m.mine||isAdmin){const b1=document.createElement('button');b1.className='msg-btn';b1.textContent='×';b1.onclick=()=>recallMessage(m.mid);ac.appendChild(b1);if(isAdmin){const b2=document.createElement('button');b2.className='msg-btn';b2.textContent='顶';b2.onclick=()=>pinMessage(m.mid);ac.appendChild(b2);}}d.appendChild(ac);a.appendChild(d);});a.scrollTop=1e9;}
-function pinMessage(m){ pinnedMsg=m;localStorage.setItem('pinnedMsg',m);send({type:'pin',mid:m});renderChat();}
-function handleMsg(d){ if(mutedUsers.includes(d.from))return;addMessage({mid:d.mid,from:d.from,name:d.name,content:d.content,mine:false,read:false});send({type:'read',mid:d.mid});}
-function recallMessage(m){ send({type:'recall',mid:m});messageList=messageList.filter(x=>x.mid!==m);localStorage.setItem('chatHistory',JSON.stringify(messageList));renderChat();}
-function handleRecall(d){ messageList=messageList.filter(x=>x.mid!==d.mid);localStorage.setItem('chatHistory',JSON.stringify(messageList));renderChat();}
-function handleRead(d){ messageList.forEach(m=>{if(m.mid===d.mid)m.read=true});renderChat();}
-function sendFiles(e){ if(mutedUsers.includes(userId))return alert('禁言中');Array.from(e.target.files).forEach(f=>{const r=new FileReader();const id=Date.now()+'';r.onload=()=>{files[id]={name:f.name,type:f.type,data:r.result,progress:100};send({type:'file',fid:id,fname:f.name,ftype:f.type});refreshFiles();};r.readAsDataURL(f);});}
-function handleFileInfo(d){ files[d.fid]={name:d.fname,type:d.ftype,data:'',progress:0};refreshFiles();setTimeout(()=>{files[d.fid].progress=100;refreshFiles();},600);}
-function refreshFiles(){ const l=document.getElementById('filesList');l.innerHTML='';for(const f in files){const i=document.createElement('div');i.className='file-item';const d=files[f];if(d.type.startsWith('image/')&&d.data){const img=document.createElement('img');img.className='file-preview';img.src=d.data;i.appendChild(img);}const n=document.createElement('div');n.className='file-name';n.textContent=d.name;i.appendChild(n);const p=document.createElement('div');p.style.height='3px';p.style.background='var(--accent)';p.style.width=d.progress+'%';p.style.borderRadius='2px';i.appendChild(p);const b=document.createElement('button');b.className='down-btn';b.textContent=d.progress>=100?'下载':'接收中';b.disabled=d.progress<100;b.onclick=()=>{const a=document.createElement('a');a.href=d.data;a.download=d.name;a.click();};i.appendChild(b);l.appendChild(i);}}
-async function startCall(v){ localStream=await navigator.mediaDevices.getUserMedia({audio:true,video:v});addVideo(userId,myName,localStream);broadcastCall();}
-async function startScreenShare(){ screenStream=await navigator.mediaDevices.getDisplayMedia({audio:true,video:true});addVideo(userId,myName+'屏',screenStream);broadcastCall();}
-function addVideo(u,n,s){ const b=document.createElement('div');b.className='video-box';const v=document.createElement('video');v.autoplay=true;v.playsInline=true;v.srcObject=s;const t=document.createElement('div');t.className='video-name';t.textContent=n;b.appendChild(v);b.appendChild(t);document.getElementById('videos').appendChild(b);}
-function hangup(){ if(localStream)localStream.getTracks().forEach(t=>t.stop());if(screenStream)screenStream.getTracks().forEach(t=>t.stop());localStream=screenStream=null;pcMap={};document.getElementById('videos').innerHTML='';}
-async function broadcastCall(){ for(const u in onlineUsers)if(u!==userId)await makeOffer(u);}
-async function makeOffer(p){ const c=new RTCPeerConnection(iceConfig);pcMap[p]=c;if(localStream)localStream.getTracks().forEach(t=>c.addTrack(t,localStream));if(screenStream)screenStream.getTracks().forEach(t=>c.addTrack(t,screenStream));c.onicecandidate=e=>e.candidate&&send({type:'ice',to:p,data:e.candidate});c.ontrack=e=>addVideo(p,onlineUsers[p]?.name||p,e.streams[0]);const o=await c.createOffer();await c.setLocalDescription(o);send({type:'offer',to:p,data:o});}
-async function handleOffer(d){ const c=new RTCPeerConnection(iceConfig);pcMap[d.from]=c;if(localStream)localStream.getTracks().forEach(t=>c.addTrack(t,localStream));if(screenStream)screenStream.getTracks().forEach(t=>c.addTrack(t,screenStream));c.onicecandidate=e=>e.candidate&&send({type:'ice',to:d.from,data:e.candidate});c.ontrack=e=>addVideo(d.from,d.name,e.streams[0]);await c.setRemoteDescription(d.data);const a=await c.createAnswer();await c.setLocalDescription(a);send({type:'answer',to:d.from,data:a});}
-async function handleAnswer(d){ await pcMap[d.from].setRemoteDescription(d.data); }
-async function handleIce(d){ await pcMap[d.from].addIceCandidate(new RTCIceCandidate(d.data)); }
-function refreshAdminList(){ const l=document.getElementById('userList');l.innerHTML='';for(const u in onlineUsers){const i=document.createElement('button');i.className='quick-item';i.style.width='100%';i.textContent=onlineUsers[u].name;i.onclick=()=>toggleMute(u);l.appendChild(i);}}
-function toggleMute(u){ mutedUsers.includes(u)?mutedUsers=mutedUsers.filter(x=>x!==u):mutedUsers.push(u);localStorage.setItem('mutedUsers',JSON.stringify(mutedUsers));send({type:'mute',list:mutedUsers});refreshAdminList();}
-function handleMute(d){ if(!isAdmin)return;mutedUsers=d.list;localStorage.setItem('mutedUsers',JSON.stringify(mutedUsers));refreshAdminList();}
-function clearHistory(){ messageList=[];localStorage.removeItem('chatHistory');renderChat();alert('已清空');}
-function saveSettings(){ myName=document.getElementById('setName').value.trim()||myName;roomPassword=document.getElementById('roomPwd').value;adminPassword=document.getElementById('adminPwd').value;isAdmin=!!adminPassword;localStorage.setItem('userName',myName);localStorage.setItem('roomPwd',roomPassword);localStorage.setItem('adminPwd',adminPassword);switchTheme(document.getElementById('themeSelect').value);initUser();document.getElementById('nav_admin').style.display=isAdmin?'inline-block':'none';alert('保存成功');}
-function bindEvents(){ document.getElementById('msgInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendMsg();}});document.getElementById('avatarInput').addEventListener('change',uploadAvatar);document.getElementById('fileInput').addEventListener('change',sendFiles);}
+  return {
+    joinRoom() {
+      room = document.getElementById('zg-room').value.trim();
+      if (!room) return alert('请输入房间码');
+      setStatus(false, '正在连接房间: ' + room);
+      channel.readyState === 'open' && channel.close();
+    },
+    sendMsg() {
+      if (!connected) return alert('未连接');
+      const text = document.getElementById('zg-msg').value.trim();
+      if (!text) return;
+      channel.send(JSON.stringify({ type: 'msg', text }));
+      addMsg(text, true);
+      document.getElementById('zg-msg').value = '';
+    },
+    async selectFile() {
+      if (!connected) return alert('未连接');
+      const inp = document.getElementById('zg-file-input');
+      inp.onchange = async () => {
+        for (const file of inp.files) {
+          const buf = await file.arrayBuffer();
+          channel.send(JSON.stringify({
+            type: 'file',
+            name: file.name,
+            mime: file.type,
+            data: Array.from(new Uint8Array(buf))
+          }));
+          addMsg('', true, file);
+        }
+      };
+      inp.click();
+    }
+  };
+})();
 </script>
 </body>
 </html>
